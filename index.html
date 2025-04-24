@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STEPUPP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Rubik', sans-serif;
+      background-color: #121212;
+      color: #f1f1f1;
+    }
+    nav {
+      background: #202020;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+    }
+    .menu-toggle {
+      font-size: 2rem;
+      cursor: pointer;
+      color: #f1f1f1;
+    }
+    .menu-items {
+      display: none;
+      flex-direction: column;
+      background: #2c2c2c;
+      position: absolute;
+      top: 4rem;
+      right: 2rem;
+      border-radius: 10px;
+    }
+    .menu-items a {
+      padding: 1rem;
+      text-decoration: none;
+      color: #f1f1f1;
+      transition: 0.3s;
+    }
+    .menu-items a:hover {
+      background: #ff6f00;
+      color: #000;
+    }
+    .show-menu {
+      display: flex;
+    }
+    header {
+      height: 100vh;
+      background: url('https://images.unsplash.com/photo-1600185365348-2986ec8f410b') center/cover no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 4rem;
+      color: #ff6f00;
+    }
+    header h3 {
+      margin-top: 1rem;
+      font-size: 1.5rem;
+    }
+    .btn {
+      margin-top: 1.5rem;
+      padding: 1rem 2rem;
+      background: #ff6f00;
+      border: none;
+      color: #111;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: transform 0.3s;
+    }
+    .btn:hover {
+      transform: scale(1.05);
+    }
+    section {
+      padding: 4rem 2rem;
+    }
+    .productos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+    }
+    .tenis-card {
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    .tenis-card:hover {
+      transform: translateY(-5px);
+    }
+    .tenis-card img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background: #111;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <nav>
+      <h2>STEPUPP</h2>
+      <i class="bi bi-list menu-toggle" @click="menuOpen = !menuOpen"></i>
+      <div class="menu-items" :class="{ 'show-menu': menuOpen }">
+        <a href="#yeezy">Yeezy</a>
+        <a href="#adidas">Adidas</a>
+        <a href="#nike">Nike</a>
+        <a href="#mision">Misión</a>
+        <a href="#vision">Visión</a>
+        <a href="#valores">Valores</a>
+      </div>
+    </nav>
+
+    <header>
+      <h1>STEPUPP</h1>
+      <h3>Estilo juvenil que pisa fuerte</h3>
+      <a href="#yeezy"><button class="btn">Explorar colección</button></a>
+    </header>
+
+    <section v-for="(coleccion, index) in colecciones" :id="coleccion.id" :key="index">
+      <h2>👟 Colección {{ coleccion.nombre }}</h2>
+      <div class="productos">
+        <div class="tenis-card" v-for="producto in coleccion.productos" :key="producto.nombre">
+          <img :src="producto.img" :alt="producto.nombre">
+          <h4>{{ producto.nombre }}</h4>
+          <p>{{ producto.precio }}</p>
+          <label>Selecciona tu talla:</label>
+          <select>
+            <option v-for="talla in tallas" :key="talla">{{ talla }}</option>
+          </select>
+          <button class="btn" @click="agregarAlCarrito(producto)">Agregar al carrito</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🛒 Carrito de compras</h2>
+      <ul>
+        <li v-for="item in carrito" :key="item.nombre">{{ item.nombre }} - {{ item.precio }}</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>💳 Simulador de pago</h2>
+      <p>Total a pagar: {{ total }}</p>
+      <button class="btn" @click="pagar">Pagar ahora</button>
+    </section>
+
+    <section id="mision">
+      <h2>🎯 Nuestra Misión</h2>
+      <p>Empoderar a la juventud con estilo y autenticidad, ofreciendo calzado de marca con diseño, calidad y actitud.</p>
+    </section>
+
+    <section id="vision">
+      <h2>👁️ Nuestra Visión</h2>
+      <p>Ser la plataforma favorita de los jóvenes en México y LATAM para encontrar sneakers icónicos y originales.</p>
+    </section>
+
+    <section id="valores">
+      <h2>💡 Nuestros Valores</h2>
+      <ul>
+        <li>Originalidad</li>
+        <li>Estilo</li>
+        <li>Juventud</li>
+        <li>Calidad</li>
+        <li>Confianza</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>© 2025 STEPUPP. Todos los derechos reservados.</p>
+    </footer>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        menuOpen: false,
+        tallas: ['4.5 MX', '5 MX', '5.5 MX', '6 MX', '6.5 MX', '7 MX', '7.5 MX', '8 MX', '8.5 MX', '9 MX', '9.5 MX', '10 MX'],
+        colecciones: [
+          {
+            id: 'yeezy',
+            nombre: 'Yeezy',
+            productos: [
+              { nombre: 'Yeezy Boost 350', precio: '$13,999 MXN', img: 'https://sneakerbardetroit.com/wp-content/uploads/2022/09/adidas-Yeezy-Boost-350-V2-Steel-Grey-ID4810-Release-Date-1.jpeg' },
+              { nombre: 'Yeezy Foam Runner', precio: '$7,499 MXN', img: 'https://cdn.flightclub.com/750/TEMPLATE/289101/1.jpg' },
+              { nombre: 'Yeezy Slide', precio: '$3,999 MXN', img: 'https://cdn.shopify.com/s/files/1/2358/2817/products/yeezy-slide-pure-2022-release-date.jpg' }
+            ]
+          },
+          {
+            id: 'adidas',
+            nombre: 'Adidas',
+            productos: [
+              { nombre: 'Adidas UltraBoost', precio: '$7,899 MXN', img: 'https://assets.adidas.com/images/w_600,f_auto,q_auto/f6804e8e2c68468aa510afa700c10452_9366/Ultraboost_Light_Shoes_White_ID9020_01_standard.jpg' },
+              { nombre: 'Adidas NMD R1', precio: '$6,499 MXN', img: 'https://assets.adidas.com/images/w_600,f_auto,q_auto/027114d1a3a347b5b1e5ad8d0117a275_9366/NMD_R1_Shoes_White_FZ0086_01_standard.jpg' },
+              { nombre: 'Adidas Forum Low', precio: '$4,799 MXN', img: 'https://assets.adidas.com/images/w_600,f_auto,q_auto/c3e2b168f70e4261b414ad4900f8d8f8_9366/Forum_Low_Shoes_White_FY7757_01_standard.jpg' }
+            ]
+          },
+          {
+            id: 'nike',
+            nombre: 'Nike',
+            productos: [
+              { nombre: 'Nike Air Max 90', precio: '$6,499 MXN', img: 'https://static.nike.com/a/images/t_default/0e1fc101-d1fc-4a46-9ea1-c7a4cfdddc1b/air-max-90-se-zapatillas-DzLKZv.png' },
+              { nombre: 'Nike Air Force 1', precio: '$5,999 MXN', img: 'https://static.nike.com/a/images/t_default/f16d65c5-f4dc-426e-bca0-f6229e4f4310/air-force-1-07-zapatillas-qmklV0.png' },
+              { nombre: 'Nike Dunk Low', precio: '$6,799 MXN', img: 'https://static.nike.com/a/images/t_default/69f6505e-0e2d-4b2c-8231-1e2d007f29b2/dunk-low-retro-zapatillas-jm9plD.png' }
+            ]
+          }
+        ],
+        carrito: []
+      },
+      computed: {
+        total() {
+          return this.carrito.reduce((sum, item) => {
+            let num = parseInt(item.precio.replace(/[^\d]/g, ''));
+            return sum + num;
+          }, 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+        }
+      },
+      methods: {
+        agregarAlCarrito(producto) {
+          this.carrito.push(producto);
+        },
+        pagar() {
+          alert(`Gracias por tu compra de ${this.total}`);
+          this.carrito = [];
+        }
+      }
+    });
+  </script>
+</body>
+</html>
